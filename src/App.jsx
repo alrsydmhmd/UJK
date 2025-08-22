@@ -11,7 +11,7 @@ function App() {
   })
   const [editKode, setEditKode] = useState(null)
 
-  // Ambil data
+  // Ambil data dari backend
   const fetchData = () => {
     fetch('http://localhost:3000/school')
       .then(res => res.json())
@@ -21,13 +21,13 @@ function App() {
 
   useEffect(fetchData, [])
 
-  // Handle input
-  const Change = e => {
+  // Handle input form
+  const handleChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
-  // Tambah data
-  const Tambah = e => {
+  // Create data
+  const create = e => {
     e.preventDefault()
     fetch('http://localhost:3000/school', {
       method: 'POST',
@@ -42,56 +42,59 @@ function App() {
       .catch(console.error)
   }
 
-  // Hapus data
-  const Delete = kode => {
+  // Delete data
+  const deleteData = kode => {
     fetch(`http://localhost:3000/school/${kode}`, { method: 'DELETE' })
       .then(() => fetchData())
       .catch(console.error)
   }
 
   // Edit data
-  const Edit = school => {
-    setEditKode(school.kode)
-    setForm(school)
+  const edit = siswa => {
+    setEditKode(siswa.kode)
+    setForm(siswa)
   }
 
   // Update data
-  const Update = e => {
-  e.preventDefault()
-  console.log('Update:', editKode, form) // Debug log
-  fetch(`http://localhost:3000/school/${editKode}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(form)
-  })
-    .then(res => res.json())
-    .then((result) => {
-      console.log(result) // Debug log
-      fetchData()
-      setEditKode(null)
-      setForm({ kode: '', nama_siswa: '', alamat: '', tgl_siswa: '', jurusan_siswa: '' })
+  const update = e => {
+    e.preventDefault()
+    fetch(`http://localhost:3000/school/${editKode}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form)
     })
-    .catch(console.error)
-}
+      .then(res => res.json())
+      .then(() => {
+        fetchData()
+        setEditKode(null)
+        setForm({ kode: '', nama_siswa: '', alamat: '', tgl_siswa: '', jurusan_siswa: '' })
+      })
+      .catch(console.error)
+  }
 
   return (
-    <div>
+    <div className="container">
       <h1>Data Siswa</h1>
-      <form onSubmit={editKode ? Update : Tambah}>
-        <input name="kode" placeholder="Kode" value={form.kode} onChange={Change} required disabled={!!editKode} />
-        <input name="nama_siswa" placeholder="Nama" value={form.nama_siswa} onChange={Change} required />
-        <input name="alamat" placeholder="Alamat" value={form.alamat} onChange={Change} required />
-        <input name="tgl_siswa" placeholder="Tanggal" value={form.tgl_siswa} onChange={Change} required />
-        <input name="jurusan_siswa" placeholder="Jurusan" value={form.jurusan_siswa} onChange={Change} required />
+      <form onSubmit={editKode ? update : create}>
+        <input name="kode" placeholder="Kode" value={form.kode} onChange={handleChange} required disabled={!!editKode} />
+        <input name="nama_siswa" placeholder="Nama" value={form.nama_siswa} onChange={handleChange} required />
+        <input name="alamat" placeholder="Alamat" value={form.alamat} onChange={handleChange} required />
+        <input name="tgl_siswa" placeholder="Tanggal" value={form.tgl_siswa} onChange={handleChange} required />
+        <input name="jurusan_siswa" placeholder="Jurusan" value={form.jurusan_siswa} onChange={handleChange} required />
         <button type="submit">{editKode ? 'Update' : 'Tambah'}</button>
-        {editKode && <button type="button" onClick={() => { setEditKode(null); setForm({ kode: '', nama_siswa: '', alamat: '', tgl_siswa: '', jurusan_siswa: '' }) }}>Batal</button>}
+        {editKode && (
+          <button type="button" onClick={() => {
+            setEditKode(null)
+            setForm({ kode: '', nama_siswa: '', alamat: '', tgl_siswa: '', jurusan_siswa: '' })
+          }}>Batal</button>
+        )}
       </form>
       <ul>
-        {data.map(school => (
-          <li key={school.kode}>
-            {school.nama_siswa} - {school.alamat} - {school.jurusan_siswa}
-            <button onClick={() => Edit(school)}>Edit</button>
-            <button onClick={() => Delete(school.kode)}>Hapus</button>
+        {data.map(siswa => (
+          <li key={siswa.kode}>
+            {siswa.nama_siswa} - {siswa.alamat} - {siswa.jurusan_siswa}
+            <button onClick={() => edit(siswa)}>Edit</button>
+            <button onClick={() => deleteData(siswa.kode)}>Hapus</button>
           </li>
         ))}
       </ul>
