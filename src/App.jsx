@@ -51,18 +51,25 @@ function App() {
 
   // Edit data
   const edit = siswa => {
-    setEditKode(siswa.kode)
-    setForm(siswa)
-  }
+  setEditKode(siswa.kode)
+  setForm({
+    kode: siswa.kode,
+    nama_siswa: siswa.nama_siswa,
+    alamat: siswa.alamat,
+    tgl_siswa: siswa.tgl_siswa,
+    jurusan_siswa: siswa.jurusan_siswa
+  })
+}
 
   // Update data
   const update = e => {
-    e.preventDefault()
-    fetch(`http://localhost:3000/school/${editKode}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form)
-    })
+  e.preventDefault()
+  console.log('Update:', editKode, form) // Debug log
+  fetch(`http://localhost:3000/school/${editKode}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(form)
+  })
       .then(res => res.json())
       .then(() => {
         fetchData()
@@ -76,18 +83,38 @@ function App() {
     <div className="container">
       <h1>Data Siswa</h1>
       <form onSubmit={editKode ? update : create}>
-        <input name="kode" placeholder="Kode" value={form.kode} onChange={handleChange} required disabled={!!editKode} />
-        <input name="nama_siswa" placeholder="Nama" value={form.nama_siswa} onChange={handleChange} required />
-        <input name="alamat" placeholder="Alamat" value={form.alamat} onChange={handleChange} required />
-        <input name="tgl_siswa" placeholder="Tanggal" value={form.tgl_siswa} onChange={handleChange} required />
-        <input name="jurusan_siswa" placeholder="Jurusan" value={form.jurusan_siswa} onChange={handleChange} required />
-        <button type="submit">{editKode ? 'Update' : 'Tambah'}</button>
-        {editKode && (
-          <button type="button" onClick={() => {
-            setEditKode(null)
-            setForm({ kode: '', nama_siswa: '', alamat: '', tgl_siswa: '', jurusan_siswa: '' })
-          }}>Batal</button>
-        )}
+        <input
+          name="kode"
+          value={form.kode}
+          onChange={handleChange}
+          placeholder="Kode"
+          disabled={!!editKode}
+        />
+        <input
+          name="nama_siswa"
+          value={form.nama_siswa}
+          onChange={handleChange}
+          placeholder="Nama Siswa"
+        />
+        <input
+          name="alamat"
+          value={form.alamat}
+          onChange={handleChange}
+          placeholder="Alamat"
+        />
+        <input
+          name="tgl_siswa"
+          type="date"
+          value={form.tgl_siswa}
+          onChange={handleChange}
+        />
+        <input
+          name="jurusan_siswa"
+          value={form.jurusan_siswa}
+          onChange={handleChange}
+          placeholder="Jurusan Siswa"
+        />
+        <button type="submit">{editKode ? 'Update' : 'Create'}</button>
       </form>
       <ul>
         {data.map(siswa => (
